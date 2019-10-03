@@ -23,32 +23,47 @@ func NewNeoClient(neoURL string) (*NeoClient, error) {
 }
 
 var relatedPattern = `MATCH (:Concept{uuid:"%s"})-[:EQUIVALENT_TO]->(%s:Concept) MATCH (%s)<-[:EQUIVALENT_TO]-(:Concept)-[:HAS_BROADER*1..]->(%s:Concept) `
-var timePattern = "WHERE c.publishedDateEpoch>%d AND c.publishedDateEpoch<%d "
-var directlyRelatedPattern = "AND (c)-[:ABOUT|MENTIONS]->(:Concept{uuid:\"%s\"}) "
+var timePattern = "c.publishedDateEpoch>%d AND c.publishedDateEpoch<%d "
+var directlyRelatedPattern = "(c)-[:ABOUT|MENTIONS]->(:Concept{uuid:\"%s\"}) "
 
 func constructStatement(sObj *SearchObject) string {
 
 	var statement string
-
+	//gather implicitly related concpets
 	for i, uuid := range sObj.isRelatedWith {
 		canonLabel := fmt.Sprintf("canon%d", i)
 		implicitLabel := fmt.Sprintf("implicit%d", i)
 		related := fmt.Sprintf(relatedPattern, uuid, canonLabel, canonLabel, implicitLabel)
 		statement += related
 	}
+	// collect all implicit concepts in a list
 	collectStatement := "WITH collect(implicit0)"
 	for idx := 1; idx < len(sObj.isRelatedWith); idx++ {
 		collectStatement += fmt.Sprintf(" + collect(implicit%d)", idx)
 	}
-	statement += fmt.Sprintf("%s as col UNWIND col as implicit MATCH (implicit)<-[]-(c:Content) ", collectStatement)
+	statement += fmt.Sprintf("%s as col ", collectStatement)
 
-	statement += fmt.Sprintf(timePattern, sObj.fromDate, sObj.toDate)
+	//get all content for implicitly related concepts
+	statement += "UNWIND col as implicit MATCH (implicit)<-[]-(c:Content)"
 
+	// collect filters for time and explicit annotations
+	var filters []string
+	if sObj.fromDate > 0 && sObj.toDate > 0 && sObj.fromDate < sObj.toDate { // todo has time filter
+		filters = append(filters, fmt.Sprintf(timePattern, sObj.fromDate, sObj.toDate))
+	}
 	for _, uuid := range sObj.isDirectlyRelatedWith {
-		related := fmt.Sprintf(directlyRelatedPattern, uuid)
-		statement += related
+		filters = append(filters, fmt.Sprintf(directlyRelatedPattern, uuid))
 	}
 
+	// construct where statement
+	if len(filters) > 0 {
+		statement += fmt.Sprintf(" WHERE %s", filters[0])
+		for idx := 1; idx < len(filters); idx++ {
+			statement += fmt.Sprintf(" AND %s", filters[idx])
+		}
+	}
+
+	// contstruct return
 	statement += fmt.Sprintf("RETURN c.uuid as uuid LIMIT(%d) ", sObj.limit)
 
 	fmt.Println(statement)

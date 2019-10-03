@@ -11,10 +11,10 @@ type requestHandler struct {
 }
 
 type payload struct {
-	Period struct {
-		Start int64 `json:"start"`
-		End   int64 `json:"end"`
-	} `json:"period"`
+	Period *struct {
+		Start int64 `json:"startDate"`
+		End   int64 `json:"endDate"`
+	} `json:"period,omitempty"`
 	IsRelatedWith         []string `json:"isRelatedWith"`
 	IsDirectlyRelatedWith []string `json:"isDirectlyRelatedWith"`
 }
@@ -57,9 +57,17 @@ func (handler *requestHandler) searchEndpoint(writer http.ResponseWriter, reques
 }
 
 func payloadToSearchObject(data payload) *SearchObject {
+	var (
+		start int64
+		end   int64
+	)
+	if data.Period != nil {
+		start = data.Period.Start
+		end = data.Period.End
+	}
 	return &SearchObject{
-		fromDate:              data.Period.Start,
-		toDate:                data.Period.End,
+		fromDate:              start,
+		toDate:                end,
 		isRelatedWith:         data.IsRelatedWith,
 		isDirectlyRelatedWith: data.IsDirectlyRelatedWith,
 		limit:                 25,
