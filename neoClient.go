@@ -22,6 +22,39 @@ func NewNeoClient(neoURL string) (*NeoClient, error) {
 	return &NeoClient{neoDriver}, nil
 }
 
+var relatedPattern = `MATCH (:Concept{uuid:"%s"})-[:EQUIVALENT_TO]->(%s:Concept) MATCH (%s)<-[:EQUIVALENT_TO]-(:Concept)-[:HAS_BROADER*1..]->(%s:Concept) `
+var timePattern = "WHERE c.publishedDateEpoch>%d AND c.publishedDateEpoch<%d "
+var directlyRelatedPattern = "AND (c)-[:ABOUT|MENTIONS]->(:Concept{uuid:\"%s\"}) "
+
+func constructStatement(sObj *SearchObject) string {
+
+	var statement string
+
+	for i, uuid := range sObj.isRelatedWith {
+		canonLabel := fmt.Sprintf("canon%d", i)
+		implicitLabel := fmt.Sprintf("implicit%d", i)
+		related := fmt.Sprintf(relatedPattern, uuid, canonLabel, canonLabel, implicitLabel)
+		statement += related
+	}
+	collectStatement := "WITH collect(implicit0)"
+	for idx := 1; idx < len(sObj.isRelatedWith); idx++ {
+		collectStatement += fmt.Sprintf(" + collect(implicit%d)", idx)
+	}
+	statement += fmt.Sprintf("%s as col UNWIND col as implicit MATCH (implicit)<-[]-(c:Content) ", collectStatement)
+
+	statement += fmt.Sprintf(timePattern, sObj.fromDate, sObj.toDate)
+
+	for _, uuid := range sObj.isDirectlyRelatedWith {
+		related := fmt.Sprintf(directlyRelatedPattern, uuid)
+		statement += related
+	}
+
+	statement += fmt.Sprintf("RETURN c.uuid as uuid LIMIT(%d) ", sObj.limit)
+
+	fmt.Println(statement)
+	return statement
+}
+
 type SearchObject struct {
 	fromDate              int64
 	toDate                int64
@@ -35,13 +68,7 @@ func (nc *NeoClient) Search(sObj *SearchObject) ([]string, error) {
 	var records []neo4j.Record
 	var err error
 
-	statement := `
-		MATCH (:Concept{uuid:"9ab8e36c-4b79-4e96-9aae-cc586b7d19c4"})-[:EQUIVALENT_TO]->(canon:Concept)
-		MATCH (canon)<-[:EQUIVALENT_TO]-(leaves:Concept)-[:HAS_BROADER*1..]->(implicit:Concept)<-[]-(c:Content)
-		WITH c, leaves, implicit
-		WHERE c.publishedDateEpoch>1569179507 AND c.publishedDateEpoch<1570043512 AND c-[:ABOUT]->(:Topic{prefLabel:"Agriculture"})
-		RETURN c.uuid as uuid
-		LIMIT(5)`
+	statement := constructStatement(sObj)
 	if session, err = nc.driver.Session(neo4j.AccessModeRead); err != nil {
 		return nil, err
 	}

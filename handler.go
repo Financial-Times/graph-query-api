@@ -62,6 +62,7 @@ func payloadToSearchObject(data payload) *SearchObject {
 		toDate:                data.Period.End,
 		isRelatedWith:         data.IsRelatedWith,
 		isDirectlyRelatedWith: data.IsDirectlyRelatedWith,
+		limit:                 25,
 	}
 }
 
