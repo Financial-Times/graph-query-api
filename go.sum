@@ -16,6 +16,10 @@ github.com/hashicorp/go-version v0.0.0-20171129150820-4fe82ae3040f h1:QnRipjW3Mm
 github.com/hashicorp/go-version v0.0.0-20171129150820-4fe82ae3040f/go.mod h1:fltr4n8CU8Ke44wwGCBoEymUuxUHl09ZGVZPK5anwXA=
 github.com/jawher/mow.cli v1.0.3 h1:Gzeyd6chWE6QOMMcWh/A6mZ/szC5hpkYkqkzj4DakgU=
 github.com/jawher/mow.cli v1.0.3/go.mod h1:5hQj2V8g+qYmLUVWqu4Wuja1pI57M83EChYLVZ0sMKk=
+github.com/neo4j-drivers/gobolt v1.7.4 h1:80c7W+vtw39ES9Q85q9GZh4tJo+1MpQGpFTuo28CP+Y=
+github.com/neo4j-drivers/gobolt v1.7.4/go.mod h1:O9AUbip4Dgre+CD3p40dnMD4a4r52QBIfblg5k7CTbE=
+github.com/neo4j/neo4j-go-driver v1.7.4 h1:BgVVwYkG3DWcZGiOPUOkwkd54sSg+UHDaLYz3aiNCek=
+github.com/neo4j/neo4j-go-driver v1.7.4/go.mod h1:aPO0vVr+WnhEJne+FgFjfsjzAnssPFLucHgGZ76Zb/U=
 github.com/rcrowley/go-metrics v0.0.0-20180125231941-8732c616f529 h1:QdrarV+Ze3cQpiZZ410O4mpB0WUdOgMc3Rwu8zOmLVg=
 github.com/rcrowley/go-metrics v0.0.0-20180125231941-8732c616f529/go.mod h1:bCqnVzQkZxMG4s8nGwiZ5l3QUCyqpo9Y+/ZMZ9VjZe4=
 github.com/sirupsen/logrus v1.0.4 h1:gzbtLsZC3Ic5PptoRG+kQj4L60qjK7H7XszrU163JNQ=

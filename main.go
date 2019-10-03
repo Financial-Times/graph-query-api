@@ -44,6 +44,11 @@ func main() {
 		Desc:   "Port to listen on",
 		EnvVar: "APP_PORT",
 	})
+	neoURL := app.String(cli.StringOpt{
+		Name:   "neo-url",
+		Value:  "bolt://localhost:7687/",
+		Desc:   "neo4j endpoint URL",
+		EnvVar: "NEO_URL"})
 
 	logLevel := app.String(cli.StringOpt{
 		Name:   "logLevel",
@@ -62,9 +67,17 @@ func main() {
 			serveEndpoints(*appSystemCode, *appName, *port, requestHandler{})
 		}()
 
-		// todo: insert app code here
+		neoClient, err := NewNeoClient(*neoURL)
+		if err != nil{
+			log.Fatal(err)
+		}
 
 		waitForSignal()
+
+		err = neoClient.Close()
+		if err!= nil{
+			log.Error(err)
+		}
 	}
 	err := app.Run(os.Args)
 	if err != nil {

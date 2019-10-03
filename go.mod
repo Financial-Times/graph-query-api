@@ -12,6 +12,8 @@ require (
 	github.com/gorilla/mux v1.6.1
 	github.com/hashicorp/go-version v0.0.0-20171129150820-4fe82ae3040f
 	github.com/jawher/mow.cli v1.0.3
+	github.com/neo4j-drivers/gobolt v1.7.4 // indirect
+	github.com/neo4j/neo4j-go-driver v1.7.4
 	github.com/rcrowley/go-metrics v0.0.0-20180125231941-8732c616f529
 	github.com/sirupsen/logrus v1.0.4
 	golang.org/x/crypto v0.0.0-20180127211104-1875d0a70c90
