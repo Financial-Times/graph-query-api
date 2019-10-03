@@ -1,0 +1,6 @@
+# Values used for the deployed application.
+service:
+  name: graph-query-api
+env:
+  LOG_LEVEL: INFO
+  ENV_VAR_1: "value1"
