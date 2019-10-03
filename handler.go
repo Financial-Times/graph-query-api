@@ -21,6 +21,11 @@ type payload struct {
 	IsDirectlyRelatedWith []string `json:"isDirectlyRelatedWith"`
 }
 
+type responseBody struct {
+	UUIDs []string `json:"uuid"`
+	Error string   `json:"error"`
+}
+
 func (handler *requestHandler) searchEndpoint(writer http.ResponseWriter, request *http.Request) {
 	defer request.Body.Close()
 	body, err := ioutil.ReadAll(request.Body)
@@ -40,15 +45,14 @@ func (handler *requestHandler) searchEndpoint(writer http.ResponseWriter, reques
 		writeError(writer, errors.New("failed request, NeoClient is not initialized"))
 		return
 	}
+
 	content, err := handler.client.Search(payloadToSearchObject(p))
 	if err != nil {
 		writeError(writer, err)
 		return
 	}
 
-	body, err = json.Marshal(struct {
-		Content []string `json:"content"`
-	}{Content: content})
+	body, err = json.Marshal(responseBody{UUIDs: content})
 
 	if err != nil {
 		writeError(writer, err)
@@ -70,8 +74,6 @@ func payloadToSearchObject(data payload) *SearchObject {
 
 func writeError(writer http.ResponseWriter, err error) {
 	writer.WriteHeader(http.StatusInternalServerError)
-	body, _ := json.Marshal(struct {
-		Error string `json:"error"`
-	}{Error: err.Error()})
+	body, _ := json.Marshal(responseBody{Error: err.Error()})
 	writer.Write(body)
 }
