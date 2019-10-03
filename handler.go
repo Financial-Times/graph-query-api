@@ -2,10 +2,8 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 	"io/ioutil"
 	"net/http"
-	"time"
 )
 
 type requestHandler struct {
@@ -14,16 +12,16 @@ type requestHandler struct {
 
 type payload struct {
 	Period struct {
-		Start time.Time `json:"start"`
-		End   time.Time `json:"end"`
-	}
+		Start int64 `json:"start"`
+		End   int64 `json:"end"`
+	} `json:"period"`
 	IsRelatedWith         []string `json:"isRelatedWith"`
 	IsDirectlyRelatedWith []string `json:"isDirectlyRelatedWith"`
 }
 
 type responseBody struct {
 	UUIDs []string `json:"uuid"`
-	Error string   `json:"error"`
+	Error string   `json:"error,omitempty"`
 }
 
 func (handler *requestHandler) searchEndpoint(writer http.ResponseWriter, request *http.Request) {
@@ -38,11 +36,6 @@ func (handler *requestHandler) searchEndpoint(writer http.ResponseWriter, reques
 	err = json.Unmarshal(body, &p)
 	if err != nil {
 		writeError(writer, err)
-		return
-	}
-
-	if handler.client != nil {
-		writeError(writer, errors.New("failed request, NeoClient is not initialized"))
 		return
 	}
 
@@ -65,8 +58,8 @@ func (handler *requestHandler) searchEndpoint(writer http.ResponseWriter, reques
 
 func payloadToSearchObject(data payload) *SearchObject {
 	return &SearchObject{
-		fromDate:              data.Period.Start.Unix(),
-		toDate:                data.Period.End.Unix(),
+		fromDate:              data.Period.Start,
+		toDate:                data.Period.End,
 		isRelatedWith:         data.IsRelatedWith,
 		isDirectlyRelatedWith: data.IsDirectlyRelatedWith,
 	}

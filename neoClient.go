@@ -3,7 +3,6 @@ package main
 import (
 	"errors"
 	"fmt"
-	"time"
 
 	"github.com/Financial-Times/go-logger"
 	"github.com/neo4j/neo4j-go-driver/neo4j"
@@ -50,7 +49,7 @@ func (nc *NeoClient) Search(sObj *SearchObject) ([]string, error) {
 
 	records, err = neo4j.Collect(session.ReadTransaction(func(tx neo4j.Transaction) (interface{}, error) {
 		return tx.Run(statement, map[string]interface{}{"contentUUID": "", "annotationLifecycle": ""})
-	}, neo4j.WithTxTimeout(20*time.Second)))
+	}))
 
 	if err != nil {
 		return nil, err
