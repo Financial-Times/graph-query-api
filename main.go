@@ -8,15 +8,13 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/jawher/mow.cli"
-	log "github.com/Financial-Times/go-logger"
-
-	"github.com/gorilla/mux"
-	"github.com/rcrowley/go-metrics"
-	"github.com/Financial-Times/http-handlers-go/httphandlers"
-
 	fthealth "github.com/Financial-Times/go-fthealth/v1_1"
+	log "github.com/Financial-Times/go-logger"
+	"github.com/Financial-Times/http-handlers-go/httphandlers"
 	status "github.com/Financial-Times/service-status-go/httphandlers"
+	"github.com/gorilla/mux"
+	cli "github.com/jawher/mow.cli"
+	"github.com/rcrowley/go-metrics"
 )
 
 const appDescription = "UPP Golang Microservice Template short description - please amend"
@@ -56,26 +54,28 @@ func main() {
 		Desc:   "Logging level (DEBUG, INFO, WARN, ERROR)",
 		EnvVar: "LOG_LEVEL",
 	})
-	
+
 	log.InitLogger(*appSystemCode, *logLevel)
 	log.Infof("[Startup] graph-query-api is starting ")
 
 	app.Action = func() {
 		log.Infof("System code: %s, App Name: %s, Port: %s", *appSystemCode, *appName, *port)
 
-		go func() {
-			serveEndpoints(*appSystemCode, *appName, *port, requestHandler{})
-		}()
-
 		neoClient, err := NewNeoClient(*neoURL)
-		if err != nil{
+		if err != nil {
 			log.Fatal(err)
 		}
+
+		handler := requestHandler{neoClient}
+
+		go func() {
+			serveEndpoints(*appSystemCode, *appName, *port, handler)
+		}()
 
 		waitForSignal()
 
 		err = neoClient.Close()
-		if err!= nil{
+		if err != nil {
 			log.Error(err)
 		}
 	}
@@ -96,8 +96,7 @@ func serveEndpoints(appSystemCode string, appName string, port string, requestHa
 	serveMux.HandleFunc(status.BuildInfoPath, status.BuildInfoHandler)
 
 	servicesRouter := mux.NewRouter()
-	servicesRouter.HandleFunc("/sample", requestHandler.sampleMessage).Methods("POST")
-	//todo: add new handlers here
+	servicesRouter.HandleFunc("/search", requestHandler.searchEndpoint).Methods("GET")
 
 	var monitoringRouter http.Handler = servicesRouter
 	monitoringRouter = httphandlers.TransactionAwareRequestLoggingHandler(log.Logger(), monitoringRouter)
