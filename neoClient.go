@@ -22,7 +22,7 @@ func NewNeoClient(neoURL string) (*NeoClient, error) {
 	return &NeoClient{neoDriver}, nil
 }
 
-var relatedPattern = `MATCH (:Concept{uuid:"%s"})-[:EQUIVALENT_TO]->(%s:Concept) MATCH (%s)<-[:EQUIVALENT_TO]-(:Concept)-[:IS_INCLUDED_IN|HAS_BROADER*1..]->(%s:Concept) `
+var relatedPattern = `MATCH (:Concept{uuid:"%s"})-[:EQUIVALENT_TO]->(%s:Concept) MATCH (%s)<-[:EQUIVALENT_TO]-(:Concept)<-[:IS_INCLUDED_IN|HAS_BROADER*1..]-(%s:Concept) `
 var timePattern = "c.publishedDateEpoch>%d AND c.publishedDateEpoch<%d "
 var directlyRelatedPattern = "(c)-[:ABOUT|MENTIONS]->(:Concept{uuid:\"%s\"}) "
 
@@ -64,7 +64,7 @@ func constructStatement(sObj *SearchObject) string {
 	}
 
 	// contstruct return
-	statement += fmt.Sprintf("RETURN c.uuid as uuid LIMIT(%d) ", sObj.limit)
+	statement += fmt.Sprintf("RETURN DISTINCT c.uuid as uuid LIMIT(%d) ", sObj.limit)
 
 	fmt.Println(statement)
 	return statement

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"time"
 )
 
 type requestHandler struct {
@@ -58,8 +59,8 @@ func (handler *requestHandler) searchEndpoint(writer http.ResponseWriter, reques
 
 func payloadToSearchObject(data payload) *SearchObject {
 	var (
-		start int64
-		end   int64
+		start int64 = 1538582036 // last year this time
+		end   int64 = time.Now().Unix()
 	)
 	if data.Period != nil {
 		start = data.Period.Start
