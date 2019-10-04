@@ -22,7 +22,7 @@ func NewNeoClient(neoURL string) (*NeoClient, error) {
 	return &NeoClient{neoDriver}, nil
 }
 
-var relatedPattern = `MATCH (:Concept{uuid:"%s"})-[:EQUIVALENT_TO]->(%s:Concept) MATCH (%s)<-[:EQUIVALENT_TO]-(:Concept)<-[:IS_INCLUDED_IN|HAS_BROADER*1..]-(%s:Concept) `
+var relatedPattern = `MATCH (:Concept{uuid:"%s"})-[:EQUIVALENT_TO]->(%s:Concept) MATCH (%s)<-[:EQUIVALENT_TO]-(:Concept)<-[:COUNTRY_OF_OPERATIONS|IS_INCLUDED_IN|HAS_BROADER*1..]-(%s:Concept) `
 var timePattern = "c.publishedDateEpoch>%d AND c.publishedDateEpoch<%d "
 var directlyRelatedPattern = "(c)-[:ABOUT|MENTIONS]->(:Concept{uuid:\"%s\"}) "
 
