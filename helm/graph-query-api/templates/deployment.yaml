@@ -33,18 +33,11 @@ spec:
         image: "{{ .Values.image.repository }}:{{ .Chart.Version }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         env:
-        - name: ENV_VAR_1
-          value: {{ .Values.env.ENV_VAR_1 }}
-        - name: ENV_VAR_WITH_VALUE_IN_CONFIG_MAP
+        - name: NEO_URL
           valueFrom:
             configMapKeyRef:
               name: global-config
-              key: key.for.configmap.entry
-        - name: ENV_VAR_WITH_VALUE_IN_SECRET_MAP
-          valueFrom:
-            secretKeyRef:
-              name: global-secrets
-              key: key.for.secret.entry
+              key: neo4j.bolt.routing.url
         - name: LOG_LEVEL
           value: "{{ .Values.env.LOG_LEVEL }}"
         ports:

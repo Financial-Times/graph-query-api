@@ -1,4 +1,4 @@
-module github.com/Financial-Times/cookiecutter-upp-golang/graph-query-api
+module github.com/Financial-Times/graph-query-api
 
 go 1.13
 

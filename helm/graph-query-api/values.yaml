@@ -3,7 +3,7 @@
 # Declare variables to be passed into your templates.
 service:
   name: "" # The name of the service, should be defined in the specific app-configs folder.
-  hasHealthcheck: "true"
+  hasHealthcheck: "false"
 replicaCount: 2
 image:
   repository: coco/graph-query-api
@@ -14,5 +14,3 @@ resources:
     memory: 64Mi
   limits:
     memory: 256Mi
-env:
-  ENV_VAR_1: "default value"
