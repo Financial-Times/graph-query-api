@@ -2,18 +2,19 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"time"
+
+	"github.com/Financial-Times/go-logger"
 )
 
 type requestHandler struct {
 	client *NeoClient
 }
-type Th struct{
+type Th struct {
 	Text string `json:"text"`
-	Id string `json:"id"`
+	Id   string `json:"id"`
 }
 type payload struct {
 	Period *struct {
@@ -63,23 +64,22 @@ func (handler *requestHandler) searchEndpoint(writer http.ResponseWriter, reques
 }
 
 func payloadToSearchObject(data payload) *SearchObject {
-	fmt.Printf("%+v",data)
+	logger.Infof("payload: %+v\n", data)
 	var (
 		start int64 = 1538582036 // last year this time
 		end   int64 = time.Now().Unix()
 	)
-	//if data.Period != nil {
-	//	start = data.Period.Start
-	//	end = data.Period.End
-	//}
-	//start = data.Period.Start
-	//end = data.Period.End
+	if data.Period != nil {
+		start = data.Period.Start
+		end = data.Period.End
+	}
+
 	s := []string{}
-	for _,v := range(data.IsRelatedWith){
+	for _, v := range data.IsRelatedWith {
 		s = append(s, v.Id)
 	}
 	s1 := []string{}
-	for _,v := range(data.IsDirectlyRelatedWith){
+	for _, v := range data.IsDirectlyRelatedWith {
 		s1 = append(s1, v.Id)
 	}
 	return &SearchObject{
@@ -93,9 +93,7 @@ func payloadToSearchObject(data payload) *SearchObject {
 
 func writeError(writer http.ResponseWriter, err error) {
 	writer.WriteHeader(http.StatusInternalServerError)
-	fmt.Println("--------")
-	fmt.Println(err)
-	fmt.Println("--------")
+	logger.Error(err)
 	body, _ := json.Marshal(responseBody{Error: err.Error()})
 	writer.Write(body)
 }

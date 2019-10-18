@@ -66,7 +66,7 @@ func constructStatement(sObj *SearchObject) string {
 	// contstruct return
 	statement += fmt.Sprintf("RETURN DISTINCT c.uuid as uuid LIMIT(%d) ", sObj.limit)
 
-	fmt.Println(statement)
+	logger.Infof("neo4j request: %s\n", statement)
 	return statement
 }
 
@@ -105,7 +105,7 @@ func (nc *NeoClient) Search(sObj *SearchObject) ([]string, error) {
 
 	var results []string
 	for _, record := range records {
-		fmt.Printf("%+v\n", record)
+		logger.Infof("%+v\n", record)
 		recordUUID, ok := record.Get("uuid")
 		if !ok {
 			logger.Error("not found uuid for record")
