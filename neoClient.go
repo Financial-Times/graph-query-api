@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/Financial-Times/go-logger"
@@ -66,7 +65,7 @@ func constructStatement(sObj *SearchObject) string {
 	// contstruct return
 	statement += fmt.Sprintf("RETURN DISTINCT c.uuid as uuid LIMIT(%d) ", sObj.limit)
 
-	logger.Infof("neo4j request: %s\n", statement)
+	logger.Infof("Query: %s\n", statement)
 	return statement
 }
 
@@ -97,11 +96,7 @@ func (nc *NeoClient) Search(sObj *SearchObject) ([]string, error) {
 		return nil, err
 	}
 
-	logger.Infof("Query returned following results: %v", records)
-
-	if len(records) < 1 {
-		return nil, errors.New("no results found")
-	}
+	logger.Infof("Results: %v", records)
 
 	var results []string
 	for _, record := range records {
