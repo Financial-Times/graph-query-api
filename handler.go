@@ -17,7 +17,7 @@ type Th struct {
 	Id   string `json:"id"`
 }
 type payload struct {
-	Period *struct {
+	Period struct {
 		Start int64 `json:"startDate"`
 		End   int64 `json:"endDate"`
 	} `json:"period,omitempty"`
@@ -69,7 +69,7 @@ func payloadToSearchObject(data payload) *SearchObject {
 		start int64 = 1538582036 // last year this time
 		end   int64 = time.Now().Unix()
 	)
-	if data.Period != nil {
+	if data.Period.Start != data.Period.End {
 		start = data.Period.Start
 		end = data.Period.End
 	}
