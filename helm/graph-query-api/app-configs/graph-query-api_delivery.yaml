@@ -3,3 +3,4 @@ service:
   name: graph-query-api
 env:
   LOG_LEVEL: INFO
+  NEO_URL: "bolt+routing://neo4j-write:7687"
